@@ -1,3 +1,4 @@
+// src/contexts/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { authService } from "../services/authService";
 
@@ -25,7 +26,10 @@ export const AuthProvider = ({ children }) => {
         try {
           // Verify token with backend
           const response = await authService.getMe();
-          setUser(response.user);
+          setUser({
+            ...response.user,
+            id: response.user.id || response.user._id
+          });
           setIsAuthenticated(true);
         } catch (error) {
           // Token invalid, clear storage
@@ -40,25 +44,33 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = async (email, password, type) => {
-    try {
-      const response = await authService.login(email, password, type);
-      setUser(response.user);
-      setIsAuthenticated(true);
-      return { success: true, user: response.user };
-    } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Login failed' 
-      };
-    }
-  };
+  // In AuthContext.jsx login function
+const login = async (email, password, type) => {
+  try {
+    const response = await authService.login(email, password, type);
+    setUser({
+      ...response.user,
+      id: response.user.id || response.user._id // Ensure ID is available
+    });
+    setIsAuthenticated(true);
+    return { success: true, user: response.user };
+  } catch (error) {
+    return { 
+      success: false, 
+      message: error.response?.data?.message || 'Login failed' 
+    };
+  }
+};
+
 
   const register = async (userData) => {
     try {
       const response = await authService.register(userData);
       if (userData.role !== 'doctor') {
-        setUser(response.user);
+        setUser({
+          ...response.user,
+          id: response.user.id || response.user._id
+        });
         setIsAuthenticated(true);
       }
       return { success: true, message: response.message };

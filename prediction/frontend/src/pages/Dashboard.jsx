@@ -1,13 +1,12 @@
+// src/pages/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Heart, Activity, FileText, Calendar, Download, Eye, Trash2, Plus } from 'lucide-react';
 import ConsultationNotification from '../components/patient/ConsultationNotification';
 import AppointmentDetail from '../shared/AppointmentDetail';
-//import AppointmentDetail from '../components/shared/AppointmentDetail';
 import { patientService } from '../services/patientService';
 import { appointmentService } from '../services/appointmentService';
 import { formatters } from '../utils/formatters';
-//import { formatters } from '../utils/formatters';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { useNavigate } from 'react-router-dom';
 
@@ -72,11 +71,13 @@ const Dashboard = () => {
   const handleCancelAppointment = async (appointmentId) => {
     if (window.confirm('Are you sure you want to cancel this appointment?')) {
       try {
-        await appointmentService.cancelAppointment(appointmentId);
-        alert('Appointment cancelled successfully');
-        fetchAppointments();
+        const response = await appointmentService.cancelAppointment(appointmentId);
+        if (response.success) {
+          alert('Appointment cancelled successfully');
+          fetchAppointments();
+        }
       } catch (error) {
-        alert('Error cancelling appointment');
+        alert('Error cancelling appointment: ' + (error.response?.data?.message || error.message));
       }
     }
   };

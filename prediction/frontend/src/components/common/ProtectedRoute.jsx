@@ -1,3 +1,4 @@
+// src/components/common/ProtectedRoute.jsx
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -18,7 +19,14 @@ const ProtectedRoute = ({ children, role }) => {
     return <Navigate to="/login" />;
   }
 
+  // If specific role is required, check it
   if (role && user?.role !== role) {
+    // For video call, allow both doctor and patient
+    if (window.location.pathname.includes('/video-call/')) {
+      if (user?.role === 'doctor' || user?.role === 'patient') {
+        return children;
+      }
+    }
     return <Navigate to="/" />;
   }
 

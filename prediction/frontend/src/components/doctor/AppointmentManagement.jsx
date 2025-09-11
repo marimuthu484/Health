@@ -1,13 +1,12 @@
 // src/components/doctor/AppointmentManagement.jsx
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, User, Phone, Video, Check, X, Eye, MessageSquare, Filter } from 'lucide-react';
+import { Calendar, Clock, User, Phone, Video, Check, X, Eye, MessageSquare, Filter, FileText } from 'lucide-react';
 import { doctorService } from '../../services/doctorService';
 import { consultationService } from '../../services/consultationService';
 import { appointmentService } from '../../services/appointmentService';
 import { formatters } from '../../utils/formatters';
 import LoadingSpinner from '../common/LoadingSpinner';
 import AppointmentDetail from '../../shared/AppointmentDetail';
-//import AppointmentDetail from '../shared/AppointmentDetail';
 import moment from 'moment';
 
 const AppointmentCard = ({ appointment, onAction, onViewDetails, onStartCall }) => {
@@ -221,18 +220,26 @@ const AppointmentManagement = () => {
   };
 
   const startVideoCall = async (appointmentId) => {
-    try {
-      const response = await appointmentService.startConsultation(appointmentId);
+  try {
+    const response = await appointmentService.startConsultation(appointmentId);
+    
+    if (response.success) {
+      // Open in new tab with the appointmentId from response
+      const videoCallUrl = `/video-call/${response.appointmentId || appointmentId}`;
+      window.open(videoCallUrl, '_blank');
       
-      if (response.success) {
-        window.open(response.meetingLink, '_blank');
-        fetchAppointments();
-      }
-    } catch (error) {
-      console.error('Error starting consultation:', error);
-      alert(error.response?.data?.message || 'Error starting video consultation');
+      // Refresh appointments to update status
+      fetchAppointments();
     }
-  };
+  } catch (error) {
+    console.error('Error starting consultation:', error);
+    
+    // More detailed error message
+    const errorMessage = error.response?.data?.message || 'Error starting video consultation';
+    alert(errorMessage);
+  }
+};
+
 
   return (
     <div className="space-y-6">

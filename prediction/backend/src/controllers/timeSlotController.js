@@ -1,3 +1,4 @@
+// src/controllers/timeSlotController.js
 const TimeSlot = require('../models/TimeSlot');
 const Doctor = require('../models/Doctor');
 const moment = require('moment');
@@ -263,17 +264,31 @@ exports.getAvailableSlots = async (req, res) => {
     const startDate = moment(date).startOf('day').toDate();
     const endDate = moment(date).endOf('day').toDate();
 
-    const availableSlots = await TimeSlot.find({
+    // Remove the time comparison for future dates
+    const query = {
       doctorId,
       date: { $gte: startDate, $lte: endDate },
-      isBooked: false,
-      startTime: { $gte: moment().format('HH:mm') } // Only future slots
-    }).sort({ startTime: 1 });
+      isBooked: false
+    };
+
+    // Only filter by current time if it's today
+    const availableSlots = await TimeSlot.find(query).sort({ startTime: 1 });
+
+    // Filter out past slots only for today
+    const filteredSlots = availableSlots.filter(slot => {
+      if (moment(date).isSame(moment(), 'day')) {
+        // For today, filter out past time slots
+        const slotTime = moment(`${moment(date).format('YYYY-MM-DD')} ${slot.startTime}`);
+        return slotTime.isAfter(moment());
+      }
+      // For future dates, show all slots
+      return true;
+    });
 
     res.json({
       success: true,
-      count: availableSlots.length,
-      slots: availableSlots
+      count: filteredSlots.length,
+      slots: filteredSlots
     });
 
   } catch (error) {

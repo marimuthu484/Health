@@ -1,3 +1,4 @@
+// src/App.jsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
@@ -18,7 +19,7 @@ import Dashboard from "./pages/Dashboard";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import Consultation from "./pages/Consultation";
 import UserProfile from "./pages/UserProfile";
-import VideoCall from "./pages/VideoCall"; // ✅ Added VideoCall import
+import VideoCall from "./pages/VideoCall";
 
 // Admin pages
 import Admin from "./admin/Admin";
@@ -31,7 +32,7 @@ function App() {
         
         <main className="min-h-screen">
           <Routes>
-            {/* ✅ Public Routes */}
+            {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/heart-prediction" element={<HeartPrediction />} />
             <Route path="/liver-prediction" element={<LiverPrediction />} />
@@ -39,7 +40,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             
-            {/* ✅ Protected Patient Routes */}
+            {/* Protected Patient Routes */}
             <Route path="/dashboard" element={
               <ProtectedRoute role="patient">
                 <Dashboard />
@@ -55,20 +56,22 @@ function App() {
                 <UserProfile />
               </ProtectedRoute>
             } />
-            <Route path="/video-call/:consultationId" element={ // ✅ Added VideoCall Route
-              <ProtectedRoute role="patient">
-                <VideoCall />
-              </ProtectedRoute>
-            } />
             
-            {/* ✅ Protected Doctor Routes */}
+            {/* Protected Doctor Routes */}
             <Route path="/doctor-dashboard" element={
               <ProtectedRoute role="doctor">
                 <DoctorDashboard />
               </ProtectedRoute>
             } />
             
-            {/* ✅ Protected Admin Routes */}
+            {/* Video Call Route - Accessible to both doctor and patient */}
+            <Route path="/video-call/:consultationId" element={
+              <ProtectedRoute allowedRoles={['doctor', 'patient']}>
+                <VideoCall />
+              </ProtectedRoute>
+            } />
+            
+            {/* Protected Admin Routes */}
             <Route path="/admin" element={
               <ProtectedRoute role="admin">
                 <Admin />

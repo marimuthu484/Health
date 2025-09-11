@@ -1,3 +1,4 @@
+// src/services/appointmentService.js
 import api from './api';
 
 export const appointmentService = {
@@ -32,6 +33,11 @@ export const appointmentService = {
     const response = await api.post('/appointments/start-consultation', { 
       appointmentId 
     });
+    return response.data;
+  },
+
+  async cancelAppointment(appointmentId) {
+    const response = await api.put(`/appointments/${appointmentId}/cancel`);
     return response.data;
   },
 
